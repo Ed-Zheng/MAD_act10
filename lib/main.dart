@@ -32,9 +32,21 @@ class MyApp extends StatelessWidget {
 }
 
 
-class MyHomePage extends StatelessWidget {
+class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
 
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  final TextEditingController _idController = TextEditingController();
+
+  @override
+  void dispose() {
+    _idController.dispose();
+    super.dispose();
+  }
 
   // homepage layout
   @override
@@ -65,6 +77,28 @@ class MyHomePage extends StatelessWidget {
             ElevatedButton(
               onPressed: _delete,
               child: const Text('delete'),
+            ),
+            const SizedBox(height: 10),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 50.0),
+              child: TextField(
+                controller: _idController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Enter ID to query',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            ElevatedButton(
+              onPressed: _queryId,
+              child: const Text('Query by ID'),
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: _deleteAll,
+              child: const Text('delete all'),
             ),
           ],
         ),
@@ -114,4 +148,31 @@ class MyHomePage extends StatelessWidget {
     final rowsDeleted = await dbHelper.delete(id);
     debugPrint('deleted $rowsDeleted row(s): row $id');
   }
+
+  void _queryId() async {
+    final input = _idController.text;
+    if (input.isEmpty) {
+      debugPrint('Please enter an ID');
+      return;
+    }
+
+    final idToQuery = int.tryParse(input);
+    if (idToQuery == null) {
+      debugPrint('Invalid ID');
+      return;
+    }
+
+    final row = await dbHelper.queryId(idToQuery);
+    if (row != null) {
+      debugPrint('Row with id $idToQuery: $row');
+    } else {
+      debugPrint('No row found with id $idToQuery');
+    }
+  }
+
+  void _deleteAll() async {
+    final rowsDeleted = await dbHelper.deleteAll();
+    debugPrint('Deleted all rows: $rowsDeleted');
+  }
 }
+

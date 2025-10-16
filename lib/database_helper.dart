@@ -91,6 +91,26 @@ class DatabaseHelper {
       whereArgs: [id],
     );
   }
+
+  // Query by ID
+  Future<Map<String, dynamic>?> queryId(int id) async {
+    final results = await _db.query(
+      table,
+      where: '$columnId = ?',
+      whereArgs: [id],
+    );
+    if (results.isNotEmpty) {
+      return results.first;
+    } else {
+      return null;
+    }
+  }
+
+  // Delete all records
+  Future<int> deleteAll() async {
+    return await _db.delete(table);
+  }
+
 }
 
 
